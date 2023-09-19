@@ -11,7 +11,7 @@ model_engine = "gpt-3.5-turbo"
 
 async_mode = None
 app = Flask(__name__,template_folder='./templates',static_folder='./templates/static')
-app.config['SECRET_KEY'] = 'sydney' # This is supposed to be newly generated for each session
+app.config['SECRET_KEY'] = 'your_secret_key' # This is supposed to be newly generated for each session but brand tech
 socket_ = SocketIO(app, async_mode=async_mode)
 thread = None
 thread_lock = Lock()
@@ -26,7 +26,6 @@ def test_message(message):
     
     session['receive_count'] = session.get('receive_count', 0) + 1
 
-    print(message)
     messages.append({"role": "user", "content": message['data']})
     
     response = openai.ChatCompletion.create(
@@ -38,11 +37,11 @@ def test_message(message):
     # Parse the response and output the result
     output_text = response['choices'][0]['message']['content']
 
-    emit('my_response',
-         {'data':output_text, 'count': session['receive_count']})
-    # Append assistant's response to the messages
+        # Append assistant's response to the messages
     messages.append({"role": "assistant", "content": output_text})
-
+    print("EMITTING RESPONSE | ",output_text)
+    emit('my_response',
+        {'data':output_text, 'count': session['receive_count']})
     
 @socket_.on('disconnect_request', namespace='/test')
 def disconnect_request():
@@ -56,5 +55,5 @@ def disconnect_request():
          callback=can_disconnect)
 
 
-if __name__ == "__main__":
-    app.run(port=8000, debug=True)
+if __name__ == '__main__':
+    socket_.run(app, debug=True)
