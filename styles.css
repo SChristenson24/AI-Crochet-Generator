@@ -1,0 +1,48 @@
+    /* Styles for the banner */
+    .banner {
+        background-color: #fff; /* This is a light green color */
+        text-align: center;
+        padding: 20px 0;
+        height: 17vh;
+    }
+
+    .logo {
+        height: 170px;
+    }
+
+    /* Styles for the title */
+    h1 {
+        height: 20px;
+        background-color: #a6b496; 
+    }
+
+    h2 {
+        background-image: url('/static/bg.png');
+        height: 70.5vh;
+    }
+
+    .output-text {
+        height:120px;
+        width:120px;
+        border:1px solid #ccc;
+        font:16px/26px Georgia, Garamond, Serif;
+        overflow:auto;
+    }
+
+    .send-box {
+        padding: 20px;
+        margin: 0 auto;
+        margin-left: auto;
+        margin-right: auto;
+        text-align:center;
+    }
+
+
+    #emit-data{
+        border-radius: 20px;
+        border: 2px solid #727f64;
+        padding: 20px; 
+        width: 200px;
+        height: 15px;  
+    }
+
