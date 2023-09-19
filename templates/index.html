@@ -1,71 +1,167 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
-<head>
-    <title>AI Generated Crochet Pattern</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cherry+Bomb+One&family=Noto+Sans+JP:wght@200;400;600;800&display=swap" rel="stylesheet">
-    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles.css') }}">
+  <head>
+    <title>AI Crochet Generator</title>
     <script src="//code.jquery.com/jquery-1.12.4.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
-</head>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 40px;
+        background-image: url("/static/bg.png");
+        background-size: cover; /* Resize the background image to cover the entire container */
+        background-repeat: no-repeat; /* Do not repeat the image */
+        background-attachment: fixed; /* The background image will not scroll with the page */
+        background-position: center; /* Center the background image */
+      }
 
-<body>
-    <section class="top-banner">
-        <h1> </h1>
-    </section>
+      #log {
+        border: 1px solid #ddd;
+        padding: 20px;
+        margin-top: 20px;
+        height: 300px;
+        overflow-y: auto;
+        background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
+        color: #333; /* Text color; adjust as necessary */
+        position: relative;
+      }
 
-    <section class="banner">
-        <img class="logo" src="static/logo.png"/>
-    </section>
-    <h2> 
-<div class="send-box">
-    <form id="emit" method="POST" action='#'>
-        <input type="text" name="emit_data" id="emit-data" placeholder="Your Idea Here...">
-        <input type="submit" value="Send Message">  
-    </form>
-</div>
-        
-        <form id="disconnect" method="POST" action="#">
-          
-        <input type="submit" value="Disconnect Server">
-    </form>
+      .button {
+        display: inline-block;
+        padding: 10px 15px;
+        font-size: 16px;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        outline: none;
+        color: #fff;
+        background-color: #ffb6c1;
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 5px #999;
+        margin-top: 10px;
+      }
 
-    <div class="output-box">
-        <form id="log"></form>
-    </div>
-</body>
-<script type="text/javascript" charset="utf-8">
-    $(document).ready(function() {
+      .button:hover {
+        background-color: #ab767e;
+      }
 
-        namespace = '/test';
+      .button:active {
+        background-color: #87bc9e;
+        box-shadow: 0 3px #666;
+        transform: translateY(2px);
+      }
+
+      textarea {
+        width: 98%; /* takes full width of its container */
+        height: 60px; /* fixed height */
+        border: 1px solid #ddd; /* border color */
+        border-radius: 5px; /* rounded corners */
+        font-family: Arial, sans-serif; /* font */
+        font-size: 14px; /* font size */
+        color: #463030; /* text color */
+        padding: 10px; /* space inside textarea */
+        background-color: rgba(255, 255, 255, 0.8); /* light gray background */
+        resize: vertical; /* allow only vertical resizing */
+      }
+
+      textarea::placeholder {
+        color: #aaa; /* placeholder text color */
+      }
+
+      .spinner {
+        border: 8px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top: 8px solid #000;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        display: none;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%); /* centers the spinner */
+        z-index: 10; /* ensures the spinner is above other elements in the #log box */
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      #logo {
+        width: 300px; /* Or whatever width you desire */
+        /* Other potential styles: margin, padding, etc. */
+      }
+    </style>
+    <script type="text/javascript" charset="utf-8">
+      $(document).ready(function () {
+        namespace = "/test";
         var socket = io(namespace);
 
-        socket.on('connect', function() {
-            console.log('Connected to the server.');
-         });
+        // ... rest of the code
 
-        socket.on('error', function(error) {
-            console.error('Socket encountered an error:', error);
+        socket.on("my_response", function (msg, cb) {
+          $("#log").append("<br>" + $("<div/>").text(msg.data).html());
+
+          // Create a blob from the message
+          var blob = new Blob([msg.data], { type: "text/plain" });
+          var url = window.URL.createObjectURL(blob);
+
+          // Modify the button's behavior
+          $("#downloadButton")
+            .off("click")
+            .on("click", function () {
+              window.location = url;
+            })
+            .removeClass("hidden");
+
+          if (cb) cb();
+
+          $("#loading").hide();
         });
 
+        // ... rest of the code
 
-        socket.on('my_response', function(msg, cb) {
-            $('#log').append('<br>' + $('<div/>').text(msg.data).html());
-            console.log(msg.product_data)
-            if (cb)
-                cb();
+        $("form#emit").submit(function (event) {
+          socket.emit("my_event", { data: $("#emit_data").val() });
+          $("#loading").show();
+          $("#emit_data").val(""); // Clear the input after sending
+          return false;
         });
-        $('form#emit').submit(function(event) {
-            socket.emit('my_event', {data: $('#emit_data').val()});
-            return false;
-        });
+      });
+    </script>
+  </head>
+  <body>
+    <img src="/static/logo.jpg" alt="AI Crochet Pattern Generator" id="logo" />
+    <p>
+      Enter a crochet pattern description and let the AI create a pattern for
+      you!
+    </p>
 
-        $('form#disconnect').submit(function(event) {
-            socket.emit('disconnect_request');
-            return false;
-        });
-    });
-</script>
+    <form id="emit" method="POST" action="#">
+      <textarea
+        name="emit_data"
+        id="emit_data"
+        placeholder="Describe the crochet pattern you want..."
+        rows="5"
+        cols="50"
+      ></textarea>
+      <br />
+      <input type="submit" value="Generate Pattern" class="button" />
+    </form>
 
+    <h2>Generated Pattern</h2>
+    <div id="log">
+      <div id="loading" class="hidden spinner"></div>
+    </div>
+    <div id="loading" class="hidden spinner"></div>
+
+    <button id="downloadButton" class="button hidden">Download Pattern</button>
+  </body>
 </html>
+
