@@ -1,6 +1,7 @@
 import openai
 
-OpenAIKey = "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"
+
+OpenAIKey = "YOUR API KEY HERE"
 messages=[
 {"role": "system", "content": "You are an AI who will generate creative and fun crochet patterns"},
 {"role": "user", "content": """You are an AI that generates creative crochet patterns for users based off their prompt. Your task is to take in user-entered prompts and create
